@@ -1,10 +1,10 @@
-package com.atm.exception;
+package com.atm.response;
 
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class ExceptionResponse {
+public class AppResponse {
     private HttpStatus status;
     private String message;
 
@@ -24,14 +24,14 @@ public class ExceptionResponse {
         this.message = message;
     }
 
-    public ExceptionResponse(String message, HttpStatus status){
+    public AppResponse(String message, HttpStatus status){
         this.status = status;
         this.message = message;
     }
 
     public ResponseEntity<Object> build(){
         JSONObject resp = new JSONObject();
-        resp.put("error", this.getMessage());
+        resp.put("message", this.getMessage());
         return new ResponseEntity<>(resp, this.getStatus());
     }
 }
