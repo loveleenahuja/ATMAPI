@@ -52,5 +52,4 @@
 * Using Post Mapping in case of enquiry because we are not using token based authentication.
 * Actions outside the scope of problem definition such as deleting accounts etc. are not modeled in this API.
 
-### Running Tests
-Use `mvn test`
+
