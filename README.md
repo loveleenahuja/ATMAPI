@@ -40,6 +40,7 @@
 
 * For personal details of user, we are taking only firstname and lastname
 * Invalid requests will return a json object with an error message and status of BAD REQUEST.
+* @Version is used for optimistic locking
 
 ### Assumptions
 
