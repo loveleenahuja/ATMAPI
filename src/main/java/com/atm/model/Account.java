@@ -22,6 +22,8 @@ public class Account {
     private String firstname;
     private String lastname;
 
+    // For optimistic locking
+    // Consistent locking for concurrency
     @Version
     private long version;
 
