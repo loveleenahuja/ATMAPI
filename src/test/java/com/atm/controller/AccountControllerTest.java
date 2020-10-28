@@ -1,6 +1,7 @@
 package com.atm.controller;
 
 import com.atm.repository.AccountRepository;
+import com.atm.service.BankService;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyObject;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(value = AccountController.class)
@@ -27,6 +29,9 @@ class AccountControllerTest {
 
     @MockBean
     private AccountRepository accountRepo;
+
+    @MockBean
+    private BankService bankService;
 
 //    @Before
 //    public void setUp() {
@@ -65,6 +70,9 @@ class AccountControllerTest {
         Mockito.when(
                 accountRepo.findAccountByUsername(Mockito.anyString())).thenReturn(mockaccount);
 
+        Mockito.when(
+                bankService.depositCash(anyObject(), Mockito.anyDouble())).thenReturn(true);
+
         String exampleAccountJson = "{\"username\":\"john\",\"password\":\"abc\"}";
 
         Mockito.when(accountRepo.save(Mockito.any(Account.class))).thenReturn(mockaccount2);
@@ -76,7 +84,7 @@ class AccountControllerTest {
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-        String expected = "{username:john,password:abc,balance:40,firstname:john,lastname:doe}";
+        String expected = "{message:'Deposit Successful'}";
         JSONAssert.assertEquals(expected, result.getResponse()
                 .getContentAsString(), false);
     }
@@ -90,6 +98,9 @@ class AccountControllerTest {
         Mockito.when(
                 accountRepo.findAccountByUsername(Mockito.anyString())).thenReturn(mockaccount);
 
+        Mockito.when(
+                bankService.withdrawCash(anyObject(), Mockito.anyDouble())).thenReturn(true);
+
         String exampleAccountJson = "{\"username\":\"john\",\"password\":\"abc\"}";
 
         Mockito.when(accountRepo.save(Mockito.any(Account.class))).thenReturn(mockaccount2);
@@ -101,7 +112,8 @@ class AccountControllerTest {
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-        String expected = "{username:john,password:abc,balance:20,firstname:john,lastname:doe}";
+        String expected = "{message:'Withdraw successful'}";
+
         JSONAssert.assertEquals(expected, result.getResponse()
                 .getContentAsString(), false);
     }
