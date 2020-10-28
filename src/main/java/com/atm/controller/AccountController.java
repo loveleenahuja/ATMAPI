@@ -1,6 +1,6 @@
 package com.atm.controller;
 
-import com.atm.exception.ExceptionResponse;
+import com.atm.response.AppResponse;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +17,9 @@ public class AccountController {
 
     @Autowired
     private AccountRepository accountRepo;
+    
+    @Autowired
+    private BankService bankService;
 
     @PostMapping("/account/create")
     public ResponseEntity<Object> createAccount(@RequestBody @Valid Account account) throws Exception{
@@ -53,25 +56,23 @@ public class AccountController {
             if(account.getPassword().equals(temp_account.getPassword())){
                 // *********** Deposit **************
                 if(status == 0){
-                    double new_amount = amount + temp_account.getBalance();
-                    temp_account.setBalance(new_amount);
-                    Account updated_account = accountRepo.save(temp_account);
-                    return new ResponseEntity<>(updated_account, HttpStatus.OK);
+                    Boolean depositSuccessful = bankService.depositCash(temp_account, amount);
+                    if(depositSuccessful){
+                        return new AppResponse("Deposit Successful", HttpStatus.OK).build();
+                    }
+                    else{
+                        return new AppResponse("Some error occured while depositing", HttpStatus.BAD_REQUEST).build(); // Error
+                    }
                 }
 
                 // *********** Withdraw **************
                 else if(status == 1){
-                    // Withdraw
-                    double previous_balance = temp_account.getBalance();
-                    if(previous_balance >= amount){
-                        double new_amount = temp_account.getBalance() - amount;
-                        temp_account.setBalance(new_amount);
-                        Account updated_account;
-                        updated_account = accountRepo.save(temp_account);
-                        return new ResponseEntity<>(updated_account, HttpStatus.OK);
+                    Boolean withdrawSuccessful = bankService.withdrawCash(temp_account, amount);
+                    if(withdrawSuccessful){
+                        return new AppResponse("Withdraw successful", HttpStatus.OK).build(); // Error
                     }
                     else{
-                        return new ExceptionResponse("Insufficient Balance", HttpStatus.BAD_REQUEST).build(); // Error
+                        return new AppResponse("Insufficient Balance", HttpStatus.BAD_REQUEST).build(); // Error
                     }
                 }
 
@@ -81,14 +82,14 @@ public class AccountController {
                 }
             }
             else{
-                return new ExceptionResponse("Incorrect Password", HttpStatus.BAD_REQUEST).build(); // Error
+                return new AppResponse("Incorrect Password", HttpStatus.BAD_REQUEST).build(); // Error
             }
         }
         else {
-            return new ExceptionResponse("No user found with this username", HttpStatus.BAD_REQUEST).build(); // Error
+             return new AppResponse("No user found with this username", HttpStatus.BAD_REQUEST).build(); // Error
         }
 
-        return new ExceptionResponse("Some error occured", HttpStatus.BAD_REQUEST).build(); // Error
+        return new AppResponse("Some error occured", HttpStatus.BAD_REQUEST).build(); // Error
     }
 
 }
